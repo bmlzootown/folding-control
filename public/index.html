@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: http: https:; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* https://api.foldingathome.org;">
+    <title>Folding@Home</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        .material-symbols-filled {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+            vertical-align: middle;
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">🧬</div>
+                <div class="team-name">Folding@Home</div>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-tab="machines">Machines</button>
+                <button class="nav-tab" data-tab="workunits">Work Units</button>
+                <button class="nav-tab" data-tab="stats">Stats</button>
+                <button class="nav-tab" data-tab="projects">Projects</button>
+            </nav>
+            <div class="header-right">
+                <button class="icon-btn" id="instancesBtn" title="Manage Instances"><span class="material-symbols-filled">add</span></button>
+                <button class="icon-btn" id="settingsBtn" title="Settings"><span class="material-symbols-filled">settings</span></button>
+            </div>
+        </header>
+
+        <!-- Instances Modal -->
+        <div id="instancesModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Manage Instances</h2>
+                    <button class="close-btn" id="closeInstances">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h3>Add Instance</h3>
+                    <form id="addInstanceForm">
+                        <div class="form-group">
+                            <label for="instanceName">Name:</label>
+                            <input type="text" id="instanceName" required placeholder="e.g., Remote Server">
+                        </div>
+                        <div class="form-group">
+                            <label for="instanceHost">Host/IP:</label>
+                            <input type="text" id="instanceHost" required placeholder="192.168.1.100 or example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="instancePort">Port:</label>
+                            <input type="number" id="instancePort" value="7396" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Instance</button>
+                    </form>
+                    <h3 style="margin-top: 40px;">Configured Instances</h3>
+                    <div id="instancesList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="close-btn" id="closeSettings">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h3>External API Settings</h3>
+                    <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--bg-tertiary); border-radius: 4px; margin-bottom: 20px;">
+                        <div>
+                            <label for="externalApiToggle" style="font-weight: 600; margin-bottom: 5px; display: block;">Enable External API Calls</label>
+                            <small style="color: var(--text-secondary);">Allow fetching stats and project details from external servers</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="externalApiToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <h3 style="margin-top: 40px;">Extreme Overclocking</h3>
+                    <div class="form-group">
+                        <label for="eocUserId">EOC User ID:</label>
+                        <input type="number" id="eocUserId" placeholder="e.g., 833191" min="1">
+                        <small style="color: var(--text-secondary); display: block; margin-top: 5px;">
+                            Find your EOC User ID by visiting 
+                            <a href="https://folding.extremeoverclocking.com/user_summary.php" target="_blank" style="color: var(--accent);">
+                                folding.extremeoverclocking.com
+                            </a> and checking the URL (e.g., ?u=833191)
+                        </small>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="saveEOCUserId">Save EOC User ID</button>
+                    <h3 style="margin-top: 40px;">Team Configuration</h3>
+                    <form id="addTeamForm">
+                        <div class="form-group">
+                            <label for="teamNumber">Team Number:</label>
+                            <input type="number" id="teamNumber" required placeholder="e.g., 123456">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Team</button>
+                    </form>
+                    <h3 style="margin-top: 40px;">Configured Teams</h3>
+                    <div id="teamsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Machine Settings Modal -->
+        <div id="machineSettingsModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-info" id="cancelMachineSettings" style="margin: 0;">Cancel</button>
+                        <button class="btn btn-primary" id="saveMachineSettings" style="margin: 0;"><span class="material-symbols-filled" style="font-size: 18px; vertical-align: middle;">save</span> Save</button>
+                    </div>
+                </div>
+                <div class="modal-body" id="machineSettingsBody">
+                    <div class="loading">Loading machine settings...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Machines Tab -->
+        <div id="machinesTab" class="tab-content active">
+            <!-- Summary Stats -->
+            <div class="summary-section">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Machines</th>
+                            <th>CPUs</th>
+                            <th>GPUs</th>
+                            <th>PPD</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="totalMachines">-</td>
+                            <td id="totalCPUs">-</td>
+                            <td id="totalGPUs">-</td>
+                            <td id="totalPPD">-</td>
+                            <td>
+                                <button class="btn btn-success" id="foldAllBtn"><span class="material-symbols-filled">play_arrow</span> Fold All</button>
+                                <button class="btn btn-info" id="pauseAllBtn"><span class="material-symbols-filled">pause</span> Pause All</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Machines List -->
+            <div id="machinesList" class="machines-list"></div>
+        </div>
+
+        <!-- Work Units Tab -->
+        <div id="workunitsTab" class="tab-content">
+            <div id="workUnitsList" class="work-units-list"></div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="statsTab" class="tab-content">
+            <div class="stats-content">
+                <h2>Statistics</h2>
+                <div id="statsData"></div>
+            </div>
+        </div>
+
+        <!-- Projects Tab -->
+        <div id="projectsTab" class="tab-content">
+            <div class="projects-content">
+                <h2>Projects</h2>
+                <div id="projectsData"></div>
+            </div>
+        </div>
+
+        <!-- Work Unit Detail Modal -->
+        <div id="workUnitModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2 id="workUnitTitle">Work Unit Details</h2>
+                    <button class="close-btn" id="closeWorkUnitModal">&times;</button>
+                </div>
+                <div class="modal-body" id="workUnitDetails"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
