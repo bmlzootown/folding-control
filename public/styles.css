@@ -93,6 +93,43 @@ body {
     border-bottom-color: var(--accent);
 }
 
+/* Settings Tabs */
+.settings-tabs {
+    display: flex;
+    gap: 5px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+}
+
+.settings-tab {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+    margin-bottom: -1px;
+}
+
+.settings-tab:hover {
+    color: var(--text-primary);
+}
+
+.settings-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.settings-tab-content {
+    display: none;
+}
+
+.settings-tab-content.active {
+    display: block;
+}
+
 .header-right {
     display: flex;
     gap: 10px;

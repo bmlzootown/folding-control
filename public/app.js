@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function initializeApp() {
     loadExternalApiSetting(); // Load external API setting first
+    loadCustomCss(); // Load and apply custom CSS
     setupEventListeners();
     await loadInstances();
     loadTeams(); // Load teams from localStorage
@@ -53,6 +54,7 @@ function setupEventListeners() {
         document.getElementById('settingsModal').classList.add('active');
         loadTeams();
         loadEOCUserId();
+        loadCustomCss();
         // Update toggle state when opening settings
         const toggle = document.getElementById('externalApiToggle');
         if (toggle) {
@@ -60,9 +62,22 @@ function setupEventListeners() {
         }
     });
     
+    // Settings tab switching
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const tabName = e.target.dataset.settingsTab;
+            switchSettingsTab(tabName);
+        });
+    });
+    
     // Save EOC User ID button
     document.getElementById('saveEOCUserId').addEventListener('click', () => {
         saveEOCUserId();
+    });
+    
+    // Save Custom CSS button
+    document.getElementById('saveCustomCss').addEventListener('click', () => {
+        saveCustomCss();
     });
 
     document.getElementById('closeSettings').addEventListener('click', () => {
@@ -339,6 +354,66 @@ function saveEOCUserId() {
     } catch (error) {
         console.error('Error saving EOC user ID:', error);
         alert('Error saving EOC User ID: ' + error.message);
+    }
+}
+
+// Settings tab switching
+function switchSettingsTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`[data-settings-tab="${tabName}"]`).classList.add('active');
+    
+    // Update tab content
+    document.querySelectorAll('.settings-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tabName}SettingsTab`).classList.add('active');
+}
+
+// Custom CSS functions
+let customCssStyleElement = null;
+
+function loadCustomCss() {
+    try {
+        const stored = localStorage.getItem('fah-custom-css');
+        const cssTextarea = document.getElementById('customCss');
+        if (cssTextarea) {
+            cssTextarea.value = stored || '';
+        }
+        applyCustomCss(stored || '');
+    } catch (error) {
+        console.error('Error loading custom CSS:', error);
+    }
+}
+
+function saveCustomCss() {
+    try {
+        const cssTextarea = document.getElementById('customCss');
+        const css = cssTextarea?.value || '';
+        localStorage.setItem('fah-custom-css', css);
+        applyCustomCss(css);
+        alert('Custom CSS saved successfully!');
+    } catch (error) {
+        console.error('Error saving custom CSS:', error);
+        alert('Error saving custom CSS: ' + error.message);
+    }
+}
+
+function applyCustomCss(css) {
+    // Remove existing custom CSS style element if it exists
+    if (customCssStyleElement) {
+        customCssStyleElement.remove();
+        customCssStyleElement = null;
+    }
+    
+    // Only create and add style element if CSS is not empty
+    if (css && css.trim()) {
+        customCssStyleElement = document.createElement('style');
+        customCssStyleElement.id = 'fah-custom-css';
+        customCssStyleElement.textContent = css;
+        document.head.appendChild(customCssStyleElement);
     }
 }
 
