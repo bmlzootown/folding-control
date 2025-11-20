@@ -1,4 +1,4 @@
-# Folding@Home Control
+# folding-control
 
 A locally hosted web interface for controlling Folding@Home v8.4 clients. This application allows you to manage multiple FAH instances (local and remote) without relying on external services that might be sometimes inaccessible (e.g., the official F@H webclient being down due to a Cloudflare outage).
 
